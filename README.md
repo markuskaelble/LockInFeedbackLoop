@@ -1,10 +1,9 @@
 # LockInFeedbackLoop
 
-#################### Get Docker up and running ####################
 
-To use Docker go to https://www.docker.com/products/docker-desktop and install Docker.
+FeedbackLoop for the adjustment for the output frequency for a SMIQ generator, according to the LockIn measurement of a Zurich Instrument LockIn 50 MHz.
+The file contains the Loop itself. By calling the class the daemon starts and adjusts the frequency.
+Call with: FeedbackLoop(LockIn_channel , SMIQ_channel)
 
-For VS Code Extensions: Docker,
-                        Remote - Containers 
 
-You can start the development container with "Remote - Container:Open Folder in Container"
+Skript can be executed as Docker image with "python main_code/main.py".

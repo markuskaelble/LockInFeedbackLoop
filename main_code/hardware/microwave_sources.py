@@ -17,7 +17,7 @@ along with diamond. If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) 2009-2011 Helmut Fedder <helmut.fedder@gmail.com>
 """
 
-import visa
+import pyvisa as visa
 import numpy
 import logging
 import time
@@ -29,6 +29,7 @@ class SMIQ():
     
     def __init__(self, visa_address='GPIB0::28'):
         self.visa_address = visa_address
+    
         
     def _write(self, string):
         try: # if the connection is already open, this will work
@@ -191,7 +192,7 @@ class SMR20():
         self._write(':ABOR:LIST')
         self._write('*WAI')
 
-from .nidaq import SquareWave
+#from .nidaq import SquareWave
 
 class HybridMicrowaveSourceSMIQNIDAQ():
     """Provides a microwave source that can do frequency sweeps

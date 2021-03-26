@@ -1,18 +1,22 @@
-# set base image (host OS)
-FROM python:3.9
+# For more information, please refer to https://aka.ms/vscode-docker-python
+FROM python:3.8-slim-buster
 
-# set the working directory in the container
-WORKDIR /code
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE=1
 
-# copy the dependencies file to the working directory
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED=1
+
+# Install pip requirements
 COPY requirements.txt .
+RUN python -m pip install -r requirements.txt
 
-# install dependencies
-RUN pip install -r requirements.txt
+WORKDIR /app
+COPY . /app
 
-# copy the content of the local src directory to the working directory
-COPY main_code/ .
+# Switching to a non-root user, please refer to https://aka.ms/vscode-docker-python-user-rights
+RUN useradd appuser && chown -R appuser /app
+USER appuser
 
-# command to run on container start
-#CMD [ "python", "./server.py" ]
-CMD [ "python", "./main.py" ]
+# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
+CMD ["python", "main_code/main.py"]

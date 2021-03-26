@@ -1,81 +1,83 @@
-""" Legend:
+""" Some Information:
 incomingData [Voltage] --> Used by ZI API
 outgoingData [Frequency] --> Used by ZI API 
 
 
 All Names are relativ to the programm.
+
+
+While testing keep the power for the SIMQ at -40
 """
 # import of existing python packeges
 import numpy as np
 import zhinst 
+import daemon
+import pyvisa as visa
 
-# import of self made funktions, alias the other files
-#import dummy 
+
+from hardware.microwave_sources import SMIQ
 
 
 # definition of the main Function
-class FeedbackLoop():
+class FeedbackLoop( SMIQ ):
 
     def __init__(self,signal_input, signal_output):
+        SMIQ()
         self.signal_input = signal_input
         self.signal_output = signal_output
-        self._run()
+        self.visa_address = signal_output
+        
+       # self.instr = visa.instrument(self.visa_address)
+        
+        daemon.DaemonContext(self._run())
        
-
-
-
     def _run(self): #contains the main loop
-       
-       
-       """ Definition of used variables """
-        I=0
-        self.outgoingData = 0.0 
+        
+        I=0                         # Definition of used variables 
+        self.outgoingData = 0.0     
 
 
 
-
-        def _calculation(self,incomingData): #modifys the freqeuncy
-            self.outgoingData = self.incomingData * 2
+        ############################################################################################################################
+        
+        
+        def _readData(self, signal_input): #readsThe Incoming data form  signal_input. Incoming data has to be called form the API, returns the voltage 
+            self.incomingData = 100.0
+            return self.incomingData
+        
+        
+        
+        def _calculation(self,incomingData): #modifys the freqeuncy 
+            """
+            pleas add a fancy equation here
+            """
+            self.outgoingData = self.incomingData *2 
             return self.outgoingData
 
-        def _readData(self, signal_input): #readsThe Incoming data form  signal_input. Incoming data has to be called form the API, returns the voltage 
-            self.incomingData = 1.0
-            return self.incomingData
+
 
         def _writeData(self, signal_output, outgoingData): #writes the new frequency to the signal_output. OutgoingData contains the modified frequency 
-            return print(outgoingData)
-        
-    
+            SMIQ.setFrequency(self, outgoingData)
+            return print(outgoingData) 
+
+        ############################################################################################################################
+
         while True:
             try:
-                #print("Running")
+                _writeData(self,"lol", _calculation(self, _readData(self, "lol")))
                 
-                x=_calculation(self, _readData(self, "lol"))
-                
-                print(x)
-                I+=1
+
             finally:
-                
-                if I==1000:
+                I+=1
+                if I==10:
                     break
                 
         print("Done!")
-
-
-    def _calculation(self,incomingData): #modifys the freqeuncy
-        self.incomingData= self.outgoingData * 2
-        return 
-
-    def _readData(self, signal_input): #readsThe Incoming data form  signal_input. Incoming data has to be called form the API, returns the voltage 
-        self.incomingData = 1.0 
-        return self.incomingData
-
-    def _writeData(self, signal_output, outgoingData): #writes the new frequency to the signal_output. OutgoingData contains the modified frequency 
-        return print(outgoingData)
 
 
 
 
 
 if __name__ == "__main__":  # runs the main() funktion, when file is called
-    FeedbackLoop("Dev1/AI0", "Dev2/AO0")
+    
+    FeedbackLoop("Dev1/AI0", "GPIB0::28")
