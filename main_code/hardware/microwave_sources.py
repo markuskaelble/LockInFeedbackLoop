@@ -19,7 +19,7 @@ Copyright (C) 2009-2011 Helmut Fedder <helmut.fedder@gmail.com>
 
 import pyvisa as visa
 import numpy
-import logging
+#import logging
 import time
 
 

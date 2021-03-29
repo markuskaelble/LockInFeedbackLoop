@@ -16,7 +16,8 @@ COPY . /app
 
 # Switching to a non-root user, please refer to https://aka.ms/vscode-docker-python-user-rights
 RUN useradd appuser && chown -R appuser /app
-USER appuser
+USER root
+ 
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
 CMD ["python", "main_code/main.py"]
