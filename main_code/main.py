@@ -43,7 +43,7 @@ class FeedbackLoop( SMIQ ):
         
        # self.instr = visa.instrument(self.visa_address)
         
-        daemon.DaemonContext(self._run())
+        self._run() # daemon hast to be implemented here
        
     def _run(self): #contains the main loop
         
