@@ -403,7 +403,7 @@ def get_scope_records(device, daq, scopeModule, num_records=1):
 
 
 
-[docs]def check_scope_record_flags(scope_records):
+def check_scope_record_flags(scope_records):
     """
     Loop over all records and print a warning to the console if an error bit in
     flags has been set.
