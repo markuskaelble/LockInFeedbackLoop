@@ -110,7 +110,7 @@ def setup_scope(
     daq.sync()
 
     # Now initialize and configure the Scope Module.
-    scopeModule = daq.scopeModule()
+    scopeModule = daq.scopeModule(1)
     # 'mode' : Scope data processing mode.
     # 0 - Pass through scope segments assembled, returned unprocessed, non-interleaved.
     # 1 - Moving average, scope recording assembled, scaling applied, averaged, if averaging is enabled.
@@ -141,11 +141,7 @@ def setup_scope(
     wave_nodepath = f"/{device}/scopes/0/wave"
     scopeModule.subscribe(wave_nodepath)
 
-    # Enable the scope and read the scope data arriving from the device.
-    #data_no_trig = get_scope_records(device, daq, scopeModule, min_num_records)
-    #assert wave_nodepath in data_no_trig, f"The Scope Module did not return data for {wave_nodepath}."
-    #print(f"Number of scope records with triggering disabled: {len(data_no_trig[wave_nodepath])}.")
-    #check_scope_record_flags(data_no_trig[wave_nodepath])
+    return daq, scopeModule
 
 
 def get_scope_records(device, daq, scopeModule, num_records=1):
@@ -180,7 +176,7 @@ def get_scope_records(device, daq, scopeModule, num_records=1):
         # record is read-out before all segments have been recorded, the wave data has the same size as the complete
         # data and scope data points currently unacquired segments are equal to 0.
         #
-        data = scopeModule.read(True)
+        data = scopeModule.read(False)
         
          
         if (time.time() - start) > timeout:

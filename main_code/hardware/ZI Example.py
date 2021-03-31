@@ -106,7 +106,7 @@ def run_example(
     # - an API session `daq` in order to communicate with devices via the data server.
     # - the device ID string that specifies the device branch in the server's node hierarchy.
     # - the device's discovery properties.
-    err_msg = "This example only supports HF2 Instruments."
+    
     (daq, device, props) = zhinst.utils.create_api_session(
         device_id, apilevel_example, required_devtype="HF2", required_err_msg=err_msg
     )
