@@ -176,7 +176,7 @@ def get_scope_records(device, daq, scopeModule, num_records=1):
         # record is read-out before all segments have been recorded, the wave data has the same size as the complete
         # data and scope data points currently unacquired segments are equal to 0.
         #
-        data = scopeModule.read(False)
+        data = scopeModule.read(True)
         
          
         if (time.time() - start) > timeout:

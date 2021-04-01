@@ -23,9 +23,8 @@ TO-Do:
 """-----------------------------------------------------------------------------------------------------------------------
 import of existing python packages and user-written ones.
 -----------------------------------------------------------------------------------------------------------------------"""
-
 import numpy as np
-from numpy import array
+from numpy import array, int64, uint64, uint32, int32, float32, int8
 import zhinst 
 import daemon
 import pyvisa as visa
@@ -50,7 +49,8 @@ class FeedbackLoop( SMIQ ):
     def _run(self): #contains the main loop
         
         """ variable decleration """
-        self.outgoingData = 0.0     
+        self.outgoingData = 0.0 
+        nan = None     
         """-----------------------------------------------------------------------------------------------------------------------
         Settings for the LockIn well be outsourced later to lockin_sources
         -----------------------------------------------------------------------------------------------------------------------"""
@@ -66,7 +66,7 @@ class FeedbackLoop( SMIQ ):
         err_msg = "This example only supports HF2 Instruments."
         
         """================================API configurations================================"""
-
+        
      
         # Call a zhinst utility function that returns:
         # - an API session `daq` in order to communicate with devices via the data server.
@@ -133,7 +133,7 @@ class FeedbackLoop( SMIQ ):
         
         """-----------------------------------------------------------------------------------------------------------------------
         -----------------------------------------------------------------------------------------------------------------------"""
-
+        
         # Scope setup. In the final version this should be done in  main programm,  not inside the Loop Class
         #setup_scope(self.signal_input)
 
@@ -148,15 +148,9 @@ class FeedbackLoop( SMIQ ):
             The output should be a dict with one entry inside.  
             -----------------------------------------------------------------------------------------------------------------------"""
             
-            result = get_scope_records( self.signal_input, daq, scopeModule, min_num_records)   
+            #result = get_scope_records( self.signal_input, daq, scopeModule, min_num_records)   
             
-            #result = {  'wave' : array([[1740, 1778, 1736, 1712, 1768, 1760]])} # dict for testing porposes 
-            #print(result.keys())
-            #self.incomingData = result.get('dev1492', {}).get('scopes', {}).get('0',{}).get('wave')
-            self.incomingData = (result ['dev1492']['scopes']['0']['wave']['header'])
-            #data = list(result.values())
-            #self.incomingData = np.average(np.array(data))
-            
+            self.incomingData = array((((result['/dev1492/scopes/0/wave'])[0])[0])['wave'][0])
             return self.incomingData
         
         
@@ -180,7 +174,7 @@ class FeedbackLoop( SMIQ ):
             return print(outgoingData) 
 
         ############################################################################################################################
-
+        
         # the actuall Loop
         i = 0
         while True:
@@ -193,7 +187,6 @@ class FeedbackLoop( SMIQ ):
                 if i == 1:
                     break
         print("Done!") # print messages and if loop will be removed later.  Only for testing purposes
-
 
 """-----------------------------------------------------------------------------------------------------------------------
 Every time main.py is called this function will execute the class above. The call for the class should be implemented in the main program. 
