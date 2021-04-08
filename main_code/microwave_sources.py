@@ -1,25 +1,21 @@
 """
 This file is part of pi3diamond.
-
 pi3diamond is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
-
 pi3diamond is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with diamond. If not, see <http://www.gnu.org/licenses/>.
-
 Copyright (C) 2009-2011 Helmut Fedder <helmut.fedder@gmail.com>
 """
 
-import pyvisa as visa
+import visa
 import numpy
-#import logging
+import logging
 import time
 
 
@@ -29,7 +25,6 @@ class SMIQ():
     
     def __init__(self, visa_address='GPIB0::28'):
         self.visa_address = visa_address
-    
         
     def _write(self, string):
         try: # if the connection is already open, this will work
@@ -107,7 +102,7 @@ class SMIQ():
         self._write('*WAI')
         N = int(numpy.round(float(self._ask(':LIST:FREQ:POIN?'))))
         if N != len(frequency):
-            raise RuntimeError('Error in SMIQ with List Mode')
+            raise RuntimeError, 'Error in SMIQ with List Mode'
 
     def resetListPos(self):
         self._write(':ABOR:LIST')
@@ -186,13 +181,13 @@ class SMR20():
         self._write('*WAI')
         N = int(numpy.round(float(self._ask(':LIST:FREQ:POIN?'))))
         if N != len(frequency):
-            raise RuntimeError('Error in SMIQ with List Mode')
+            raise RuntimeError, 'Error in SMIQ with List Mode'
 
     def resetListPos(self):
         self._write(':ABOR:LIST')
         self._write('*WAI')
 
-#from .nidaq import SquareWave
+#from nidaq import SquareWave
 
 class HybridMicrowaveSourceSMIQNIDAQ():
     """Provides a microwave source that can do frequency sweeps
@@ -520,10 +515,10 @@ class SMBV100AIQ():
             self._write(':IQ:SOUR BAS')
         elif source=='ANAL':
             self._write(':IQ:SOUR ANAL')
-            print(('selectInputIQ ' + source))
+            print 'selectInputIQ ' + source
         elif source=='DIFF':
             self._write(':IQ:SOUR DIFF')
-            print(('selectInputIQ ' + source))
+            print 'selectInputIQ ' + source
         else:
             raise ValueError('The source has to be either BASeline, ANALog or DIFFerential.\n use the capital letters.  IF none is select, the ANALog input is used')
        
@@ -581,4 +576,3 @@ if __name__ == '__main__':
     #frequency = np.arange(1e9,2e9,10e6)
     #microwave = GTX()
     #microwave.initSweep(frequency, -20.*np.ones(frequency.shape))
-            

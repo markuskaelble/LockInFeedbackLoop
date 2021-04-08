@@ -48,7 +48,7 @@ def setup_scope(
     else:
         raise Exception(
             "This example only supports signal inputs and outputs; it does not support scope "
-            f"inputselect {scope_inputselect}. Use 0, 1, 2 or 3 instead."
+            "inputselect {scope_inputselect}. Use 0, 1, 2 or 3 instead."
         )
 
     osc_index = 0
@@ -128,17 +128,17 @@ def setup_scope(
     scope_channel_lookup = {0: "sigin0", 1: "sigin1", 2: "sigout0", 3: "sigout1"}
     scope_channel = scope_channel_lookup[scope_inputselect]
     if scope_channel == "sigin0":
-        externalscaling = daq.getDouble(f"/{device}/sigins/0/range")
+        externalscaling = daq.getDouble("/{device}/sigins/0/range")
     elif scope_channel == "sigin1":
-        externalscaling = daq.getDouble(f"/{device}/sigins/1/range")
+        externalscaling = daq.getDouble("/{device}/sigins/1/range")
     elif scope_channel == "sigout0":
-        externalscaling = daq.getDouble(f"/{device}/sigouts/0/range")
+        externalscaling = daq.getDouble("/{device}/sigouts/0/range")
     elif scope_channel == "sigout1":
-        externalscaling = daq.getDouble(f"/{device}/sigouts/1/range")
+        externalscaling = daq.getDouble("/{device}/sigouts/1/range")
     scopeModule.set("externalscaling", externalscaling)
 
     # Subscribe to the scope's data in the module.
-    wave_nodepath = f"/{device}/scopes/0/wave"
+    wave_nodepath = "/{device}/scopes/0/wave"
     scopeModule.subscribe(wave_nodepath)
 
     return daq, scopeModule
@@ -165,11 +165,8 @@ def get_scope_records(device, daq, scopeModule, num_records=1):
         time.sleep(0.5)
         records = scopeModule.getInt("records")
         progress = scopeModule.progress()[0]
-        print(
-            f"Scope module has acquired {records} records (requested {num_records}). "
-            f"Progress of current segment {100.0 * progress}%.",
-            end="\r",
-        )
+        print "Scope module has acquired {records} records (requested {num_records}). " "Progress of current segment {100.0 * progress}%."
+        
         # Advanced use: It's possible to read-out data before all records have been recorded (or even before all
         # segments in a multi-segment record have been recorded). Note that complete records are removed from the Scope
         # Module and can not be read out again; the read-out data must be managed by the client code. If a multi-segment
@@ -181,7 +178,7 @@ def get_scope_records(device, daq, scopeModule, num_records=1):
          
         if (time.time() - start) > timeout:
             # Break out of the loop if for some reason we're no longer receiving scope data from the device.
-            print(f"\nScope Module did not return {num_records} records after {timeout} s - forcing stop.")
+            print("\nScope Module did not return {num_records} records after {timeout} s - forcing stop.")
             break
     print("")
     daq.setInt("/%s/scopes/0/enable" % device, 0)
@@ -198,12 +195,12 @@ def check_scope_record_flags(scope_records):
     num_records = len(scope_records)
     for index, record in enumerate(scope_records):
         if record[0]["flags"] & 1:
-            print(f"Warning: Scope record {index}/{num_records} flag indicates dataloss.")
+            print("Warning: Scope record {index}/{num_records} flag indicates dataloss.")
         if record[0]["flags"] & 2:
-            print(f"Warning: Scope record {index}/{num_records} indicates missed trigger.")
+            print("Warning: Scope record {index}/{num_records} indicates missed trigger.")
         if record[0]["flags"] & 4:
-            print(f"Warning: Scope record {index}/{num_records} indicates transfer failure (corrupt data).")
+            print("Warning: Scope record {index}/{num_records} indicates transfer failure (corrupt data).")
         totalsamples = record[0]["totalsamples"]
         for wave in record[0]["wave"]:
             # Check that the wave in each scope channel contains the expected number of samples.
-            assert len(wave) == totalsamples, f"Scope record {index}/{num_records} size does not match totalsamples."
+            assert len(wave) == totalsamples, "Scope record {index}/{num_records} size does not match totalsamples."

@@ -30,8 +30,8 @@ import daemon
 import pyvisa as visa
 
 
-from hardware.microwave_sources import SMIQ
-from hardware.lockin_sources import *
+from microwave_sources import SMIQ
+from lockin_sources import *
 
 
 class FeedbackLoop( SMIQ ):
@@ -117,18 +117,18 @@ class FeedbackLoop( SMIQ ):
         scope_channel = scope_channel_lookup[scope_inputselect]
         
         if scope_channel == "sigin0":
-            externalscaling = daq.getDouble(f"/{device}/sigins/0/range")
+            externalscaling = daq.getDouble ("/{device}/sigins/0/range")
         elif scope_channel == "sigin1":
-            externalscaling = daq.getDouble(f"/{device}/sigins/1/range")
+            externalscaling = daq.getDouble("/{device}/sigins/1/range")
         elif scope_channel == "sigout0":
-            externalscaling = daq.getDouble(f"/{device}/sigouts/0/range")
+            externalscaling = daq.getDouble("/{device}/sigouts/0/range")
         elif scope_channel == "sigout1":
-            externalscaling = daq.getDouble(f"/{device}/sigouts/1/range")
+            externalscaling = daq.getDouble("/{device}/sigouts/1/range")
         
         scopeModule.set("externalscaling", externalscaling)
         
         # Subscribe to the scope's data in the module.
-        wave_nodepath = f"/{device}/scopes/0/wave"
+        wave_nodepath = "/{device}/scopes/0/wave"
         scopeModule.subscribe(wave_nodepath)
         
         """-----------------------------------------------------------------------------------------------------------------------
@@ -172,7 +172,8 @@ class FeedbackLoop( SMIQ ):
             -----------------------------------------------------------------------------------------------------------------------"""
             outgoingData = 10e10
             SMIQ.setFrequency(self, outgoingData)
-            return print(outgoingData) 
+            print outgoingData
+            return 
 
         ############################################################################################################################
         
@@ -187,7 +188,7 @@ class FeedbackLoop( SMIQ ):
                 i+=1 
                 if i == 1:
                     break
-        print("Done!") # print messages and if loop will be removed later.  Only for testing purposes
+        print"Done!" # print messages and if loop will be removed later.  Only for testing purposes
 
 """-----------------------------------------------------------------------------------------------------------------------
 Every time main.py is called this function will execute the class above. The call for the class should be implemented in the main program. 
