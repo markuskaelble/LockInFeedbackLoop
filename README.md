@@ -1,9 +1,14 @@
 # LockInFeedbackLoop
 
+For impleminting the Loop just add the feedback.py file to a project, import the File to the code via import feedback.py and call the Feedback Class:
 
-FeedbackLoop for the adjustment for the output frequency for a SMIQ generator, according to the LockIn measurement of a Zurich Instrument LockIn 50 MHz.
-The file contains the Loop itself. By calling the class the daemon starts and adjusts the frequency.
-Call with: FeedbackLoop(LockIn_channel , SMIQ_channel)
+FeedbackLoop("dev1492", "GPIB0::28", 1e6 )
+FeedbackLoop("LockIn", "SMIQ", start_frequency)
 
+Required packeges:
+- numpy 
+- zhinst 
+- pyvisa 
 
-Skript can be executed as Docker image with "python main_code/main.py".
+For more Information about the LockIn API visit: https://docs.zhinst.com/labone_api/index.html
+
