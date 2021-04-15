@@ -318,6 +318,7 @@ class FeedbackLoop( SMIQ ):
 Every time main.py is called this function will execute the class above. The call for the class should be implemented in the main program. 
 Here it just added for testing purposes.
 -----------------------------------------------------------------------------------------------------------------------"""
-
+"""
 if __name__ == "__main__":
     FeedbackLoop("dev1492", "GPIB0::28", 1e6 )
+"""
