@@ -128,6 +128,7 @@ class FeedbackLoop( SMIQ ):
         nan = None     
 
 
+
         """-----------------------------------------------------------------------------------------------------------------------
         Settings for the LockIn, 
         
@@ -199,8 +200,10 @@ class FeedbackLoop( SMIQ ):
             return 
 
         ############################################################################################################################
-        
-        
+        """================================Frequncy LockInVoltage Lockfile ================================"""
+        self.timestr = time.strftime("Feedback-%Y%m%d-%H%M%S")
+
+        self.LogFile = open('FeedbackLog/%s.txt' % timestr, 'a+')  
         
         while True:
             """-----------------------------------------------------------------------------------------------------------------------
@@ -212,8 +215,10 @@ class FeedbackLoop( SMIQ ):
                 
                 time.sleep(0.001)
             finally:
-                print self.frequency
-                print average(self.incomingData)
+                 
+                self.LogFile.write(str(frequency) + "; \t" +  str(average(incomingData)))
+                #print self.frequency
+                #print average(self.incomingData)
                 pass
 
 
