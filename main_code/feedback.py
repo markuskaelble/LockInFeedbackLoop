@@ -106,74 +106,10 @@ class SMIQ():
         self._write('*WAI')
 
 
-
-
-"""-----------------------------------------------------------------------------------------------------------------------
-Subfunctions for the LockIn have been copied from the zhinst example and slightly adopted. Form the full version checkout: 
-https://docs.zhinst.com/labone_api/python/zhinst.examples.hf2.example_scope.html
------------------------------------------------------------------------------------------------------------------------"""
-
-def get_scope_records(device, daq, scopeModule, num_records=1):
-        """
-        Obtain scope records from the device using an instance of the Scope Module.
-        """
-
-        # Tell the module to be ready to acquire data; reset the module's progress to 0.0.
-        scopeModule.execute()
-
-        # Enable the scope: Now the scope is ready to record data upon receiving triggers.
-        daq.setInt("/%s/scopes/0/enable" % device, 1)
-        daq.sync()
-
-        start = time.time()
-        timeout = 1  # [s]
-        records = 0
-        progress = 0
-        # Wait until the Scope Module has received and processed the desired number of records.
-        while (records < num_records) or (progress < 1.0):
-            time.sleep(0.5)
-            records = scopeModule.getInt("scopeModule/records")
-            progress = scopeModule.progress()[0]
-            #print(("Scope module has acquired {} records (requested {}). "
-            #    "Progress of current segment {}%.").format(records, num_records, 100.*progress))
-            data = scopeModule.read(True)
-            
-            
-            if (time.time() - start) > timeout:
-                # Break out of the loop if for some reason we're no longer receiving scope data from the device.
-                print("\nScope Module did not return {num_records} records after {timeout} s - forcing stop.")
-                break
-        print("")
-        daq.setInt("/%s/scopes/0/enable" % device, 0)
-
-        # Read out the scope data from the module.
-        #data = scopeModule.read(True)
-
-        # Stop the module; to use it again we need to call execute().
-        scopeModule.finish()
-
-        return data
-
-def check_scope_record_flags(scope_records):
-        num_records = len(scope_records)
-        for index, record in enumerate(scope_records):
-            if record[0]["flags"] & 1:
-                print("Warning: Scope record {index}/{num_records} flag indicates dataloss.")
-            if record[0]["flags"] & 2:
-                print("Warning: Scope record {index}/{num_records} indicates missed trigger.")
-            if record[0]["flags"] & 4:
-                print("Warning: Scope record {index}/{num_records} indicates transfer failure (corrupt data).")
-            totalsamples = record[0]["totalsamples"]
-            for wave in record[0]["wave"]:
-                # Check that the wave in each scope channel contains the expected number of samples.
-                assert len(wave) == totalsamples, "Scope record {index}/{num_records} size does not match totalsamples."
-
-
-
 class FeedbackLoop( SMIQ ):
 
     def __init__(self, signal_input, signal_output, start_frequency):
-        #SMIQ()
+
         
 
         self.signal_input = signal_input
@@ -199,64 +135,10 @@ class FeedbackLoop( SMIQ ):
         https://docs.zhinst.com/labone_api/python/zhinst.examples.hf2.example_scope.html
         -----------------------------------------------------------------------------------------------------------------------"""
         device_id = self.signal_input
-        scope_inputselect=0
-        sigouts_amplitude=0.1
-        module_averaging_weight=1
-        module_historylength=20
-        min_num_records=1
-        apilevel_example = 1
-        err_msg = "This example only supports HF2 Instruments."
-
+       
         """================================API configurations================================"""
 
-        # Call a zhinst utility function that returns:
-        # - an API session `daq` in order to communicate with devices via the data server.
-        # - the device ID string that specifies the device branch in the server's node hierarchy.
-        # - the device's discovery properties.
-        (daq, device, props) = zhinst.utils.create_api_session(device_id, apilevel_example, required_devtype="HF2", required_err_msg=err_msg)
-        zhinst.utils.api_server_version_check(daq)
-        daq.setDebugLevel(3) # Enable the API's log
-        zhinst.utils.disable_everything(daq, device)  # Create a base configuration: Disable all available outputs, awgs, demods, scopes,...
-        """================================Experiment configurations================================"""
-        scope_settings = [[ "/%s/scopes/0/channel" % (device), scope_inputselect],["/%s/scopes/0/bwlimit" % (device), 1],["/%s/scopes/0/time" % (device), 0],["/%s/scopes/0/enable" % device, 1],]
-        daq.set(scope_settings)
-
-        # Perform a global synchronisation between the device and the data server:
-        # Ensure that the settings have taken effect on the device before acquiring data.
-        daq.sync()
-
-        # Now initialize and configure the Scope Module.
-        scopeModule = daq.scopeModule()
-        # 'mode' : Scope data processing mode.
-        # 0 - Pass through scope segments assembled, returned unprocessed, non-interleaved.
-        # 1 - Moving average, scope recording assembled, scaling applied, averaged, if averaging is enabled.
-        # 2 - Not yet supported.
-        # 3 - As for mode 1, except an FFT is applied to every segment of the scope recording.
-        scopeModule.set('scopeModule/mode', 1)
-        # 'averager/weight' : Averager behaviour.
-        #   weight=1 - don't average.
-        #   weight>1 - average the scope record shots using an exponentially weighted moving average.
-        scopeModule.set('scopeModule/averager/weight', module_averaging_weight)
-        # 'historylength' : The number of scope records to keep in the Scope Module's memory, when more records
-        #   arrive in the Module from the device the oldest records are overwritten.
-        scopeModule.set('scopeModule/historylength', module_historylength)
-
-        scope_channel_lookup = {0: 'sigin0', 1: 'sigin1', 2: 'sigout0', 3: 'sigout1'}
-        scope_channel = scope_channel_lookup[scope_inputselect]
-        if scope_channel == 'sigin0':
-            externalscaling = daq.getDouble('/{}/sigins/0/range'.format(device))
-        elif scope_channel == 'sigin1':
-            externalscaling = daq.getDouble('/{}/sigins/1/range'.format(device))
-        elif scope_channel == 'sigout0':
-            externalscaling = daq.getDouble('/{}/sigouts/0/range'.format(device))
-        elif scope_channel == 'sigout1':
-            externalscaling = daq.getDouble('/{}/sigouts/1/range'.format(device))
-        scopeModule.set('scopeModule/externalscaling', externalscaling)
-
-        # Subscribe to the scope's data in the module.
-        wave_nodepath = '/{}/scopes/0/wave'.format(device)
-        scopeModule.subscribe(wave_nodepath)
-
+        (daq, device, props) = zhinst.utils.create_api_session(self.signal_input, 1, required_devtype="HF2", required_err_msg='Nope')
 
 
         def _readData(self): 
@@ -267,9 +149,21 @@ class FeedbackLoop( SMIQ ):
             The reading function returns a nested dictionary with several measurements inside. As incomingData, just one of
             them is returned as Array. 
             -----------------------------------------------------------------------------------------------------------------------"""
-            result = get_scope_records( self.signal_input, daq, scopeModule)   
-            self.incomingData = array((((result['/%s/scopes/0/wave' % (device)])[0])[0])['wave'][0])
+            daq.setInt('/dev1492/demods/0/enable', 1)
+            daq.setDouble('/dev1492/demods/0/rate', 1e3)
+            daq.subscribe('/dev1492/demods/0/sample')
 
+            """===============================================================================
+            Just change stuff below 
+            ==============================================================================="""
+            time.sleep(1) # Subscribed data is being accumulated by the Data Server.
+            data_dict = daq.poll(0.1, 1, 0, True) # poll( recording_time_s: float, timeout_ms: int)
+            """===============================================================================
+
+            ==============================================================================="""
+           
+            self.incomingData = data_dict['/dev1492/demods/0/sample']['x'] # gets x values
+ 
             return self.incomingData
         
         
@@ -279,7 +173,18 @@ class FeedbackLoop( SMIQ ):
             Here the actual calculation will be done. 
             For testing purposes, there is no fancy calculation.   
             -----------------------------------------------------------------------------------------------------------------------"""
-            self.outgoingData =self.frequency + average(self.incomingData)
+            
+            self.outgoingData =self.frequency - average(self.incomingData)*5.4113e+7
+
+            """
+            averageData = average(self.incomingData)
+
+            if averageData >= 0:
+                self.outgoingData =self.frequency - 100
+            else:
+                self.outgoingData =self.frequency + 100
+            """
+            
 
             return self.outgoingData
 
@@ -308,6 +213,7 @@ class FeedbackLoop( SMIQ ):
                 time.sleep(0.001)
             finally:
                 print self.frequency
+                print average(self.incomingData)
                 pass
 
 
@@ -318,7 +224,6 @@ class FeedbackLoop( SMIQ ):
 Every time main.py is called this function will execute the class above. The call for the class should be implemented in the main program. 
 Here it just added for testing purposes.
 -----------------------------------------------------------------------------------------------------------------------"""
-"""
+
 if __name__ == "__main__":
-    FeedbackLoop("dev1492", "GPIB0::28", 1e6 )
-"""
+    FeedbackLoop("dev1492", "GPIB0::28", 2899.87950e6 )
