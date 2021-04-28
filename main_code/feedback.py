@@ -216,10 +216,89 @@ class FeedbackLoop( SMIQ ):
                 time.sleep(0.001)
             finally:
                  
-                self.LogFile.write(str(frequency) + "; \t" +  str(average(incomingData)))
+                self.LogFile.write(str(frequency) + "; \t" +  str(average(incomingData) + "\n"))
                 #print self.frequency
                 #print average(self.incomingData)
                 pass
+
+"""-----------------------------------------------------------------------------------------------------------------------
+    For full Project go to: https://github.com/markuskaelble/FrequencySweep.git
+-----------------------------------------------------------------------------------------------------------------------"""
+
+class FrequencySweep(SMIQ):
+    def __init__(self, signal_input, signal_output):
+        
+        self.signal_input = signal_input
+        self.signal_output = signal_output
+        self.visa_address = signal_output
+
+        self.timeFS = time.strftime("SweepLog-%Y%m%d-%H%M%S")
+        self.LogFile = open('FeedbackLog/%s.txt' % self.timeFS, 'a+')  
+
+        self._calculation_start_frequency()
+        
+        
+    def _dummy(self):
+        x,y = [],[]
+
+        with open(r"DataSets/SweepLog-20210427-125913.txt", "r+") as f:
+        data = f.readlines()
+
+        for line in data:
+            x.append(float(line.strip().split(" ")[0]))
+            y.append(float(line.strip().split(" ")[1]))
+
+        self.xArray = np.asarray(x)
+        self.yArray = np.asarray(y)
+
+
+    def _calculation_start_frequency(self):
+        """
+        (daq, device, props) = zhinst.utils.create_api_session(self.signal_input, 1, required_devtype=u"HF2", required_err_msg=u'Nope')
+        
+        sweepStart = 2.98e9
+        sweepEnd = 3e9
+
+        self.xArray =  np.arange(sweepStart, sweepEnd, 1e5)
+        self.yArray = []
+        for frequency in self.xArray:
+            
+            daq.setInt(u'/dev1492/demods/0/enable', 1)
+            daq.setDouble(u'/dev1492/demods/0/rate', 1e3)
+            daq.subscribe(u'/dev1492/demods/0/sample')
+            
+            time.sleep(0.001) # Subscribed data is being accumulated by the Data Server.
+            data_dict = daq.poll(0.1, 1, 0, True) # poll( recording_time_s: float, timeout_ms: int)
+            
+            ArrayAverange = np.average(data_dict[u'/dev1492/demods/0/sample'][u'x']) # gets x values
+            self.yArray = np.append(self.yArray, ArrayAverange)
+            
+            SMIQ.setFrequency(self, frequency)
+            time.sleep(0.001) # [s]
+            self.LogFile.write(str(frequency) + "; \t" +  str(ArrayAverange) + "\n")
+        """
+
+        self._dummy()
+
+
+        """-----------------------------------------------------------------------------------------------------------------------
+            Finds the global maxima, minima and the zero crossing in between.  The value of the 
+            yArray at the determend index gets passt to the start_frequency.
+        -----------------------------------------------------------------------------------------------------------------------"""
+            
+        _maximum = np.argmax(self.yArray)
+        _minimum = np.argmin(self.yArray)
+        
+        
+        _zeroCrossing = int(np.where(np.diff(np.sign(self.yArray)))[0])
+
+        if _maximum > _zeroCrossing > _minimum :
+            self.start_frequency = self.yArray[_zeroCrossing]
+            print self.xArray[_zeroCrossing], self.yArray[_zeroCrossing]
+        else:
+            print u"Starting point could not be found."
+
+        return self.start_frequency
 
 
 
